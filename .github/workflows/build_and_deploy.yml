@@ -30,27 +30,8 @@ jobs:
           name: static-assets
           path: dist
 
-  deploy-prod:
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    environment: prod
-    steps:
-      - name: Download static assets
-        uses: actions/download-artifact@v3
-        with:
-          name: static-assets
-          path: dist
-      - uses: ConvexCooperative/baseplate-deploy-action@1.2.0
-        with:
-          baseplate-token: ${{ secrets.BASEPLATE_TOKEN }}
-          microfrontend-name: "example-explanation"
-          environment-name: prod
-          upload-dir: dist
-          entry-file: convex-example-explanation
-
   deploy-dev:
-    needs: deploy-prod
+    needs: build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: dev
@@ -66,4 +47,23 @@ jobs:
           microfrontend-name: "example-explanation"
           environment-name: dev
           upload-dir: dist
-          entry-file: convex-example-explanation
+          entry-file: convex-example-explanation.js
+
+  deploy-prod:
+    needs: deploy-dev
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Download static assets
+        uses: actions/download-artifact@v3
+        with:
+          name: static-assets
+          path: dist
+      - uses: ConvexCooperative/baseplate-deploy-action@1.2.0
+        with:
+          baseplate-token: ${{ secrets.BASEPLATE_TOKEN }}
+          microfrontend-name: "example-explanation"
+          environment-name: prod
+          upload-dir: dist
+          entry-file: convex-example-explanation.js
